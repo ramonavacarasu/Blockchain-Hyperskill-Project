@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":Problems-Finding_the_leaves_of_a_tree:main" external.linked.project.path="$MODULE_DIR$/../../../../Problems/Finding the leaves of a tree" external.root.project.path="$MODULE_DIR$/../../../.." external.system.id="GRADLE" external.system.module.group="Blockchain" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../../../Problems/Finding the leaves of a tree/out/production/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../../Problems/Finding the leaves of a tree/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../Problems/Finding the leaves of a tree/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
