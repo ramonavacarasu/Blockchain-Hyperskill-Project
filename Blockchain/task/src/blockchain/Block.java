@@ -6,34 +6,73 @@ import java.util.Random;
 
 public class Block implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     static final Random random = new Random();
     static long idCounter = 0;
 
+    static int numberOfZeros = 0;
+
+    private String threadName;
     private Long id;
     private Long timestamp;
     private String previousHash;
     private Integer magicNumber;
     private String hash;
-    private long seconds;
+    private long milliseconds;
+    private String modificationOfN;
 
-    public Block(String previousHash, String hashPrefix) {
+    public Block(String previousHash) {
         this.id = idCounter++;
         this.timestamp = new Date().getTime();
         this.previousHash = previousHash;
         this.magicNumber = random.nextInt(10000000);
         this.hash = StringUtil.applySha256(id.toString() + timestamp.toString()
-            + previousHash + magicNumber.toString());
+                + previousHash + magicNumber.toString());
 
         do {
             this.magicNumber = random.nextInt(10000000);
             this.hash = StringUtil.applySha256(id.toString() + timestamp.toString()
                     + previousHash + magicNumber.toString());
-        } while (!hash.startsWith(hashPrefix));
-        this.seconds = new Date().getTime() - timestamp;
+        } while (!hash.startsWith(getHashPrefix(numberOfZeros)));
+        this.milliseconds = new Date().getTime() - timestamp;
+        if (milliseconds < 15000) {
+            numberOfZeros++;
+            modificationOfN = "N was increased to " + numberOfZeros;
+        } else if (milliseconds > 100000) {
+            numberOfZeros--;
+        } else {
+            modificationOfN = "N stays the same";
+        }
+
     }
 
     public static void setIdCounter(long idCounter) {
         Block.idCounter = idCounter;
+    }
+
+    public static String getHashPrefix(int n) {
+        StringBuilder zeros = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            zeros.append("0");
+        }
+        return zeros.toString();
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
+    }
+
+    public static int getNumberOfZeros() {
+        return numberOfZeros;
+    }
+
+    public static void setNumberOfZeros(int numberOfZeros) {
+        Block.numberOfZeros = numberOfZeros;
     }
 
     public Long getId() {
@@ -76,23 +115,17 @@ public class Block implements Serializable {
         this.hash = hash;
     }
 
-    public long getSeconds() {
-        return seconds;
-    }
-
-    public void setSeconds(long seconds) {
-        this.seconds = seconds;
-    }
-
     @Override
     public String toString() {
         return "Block:\n" +
-                "Id: " + id +
+                "Created by miner # " + threadName +
+                "\nId: " + id +
                 "\nTimestamp: " + timestamp +
                 "\nMagic number: " + this.magicNumber +
                 "\nHash of the previous block:\n" + previousHash +
                 "\nHash of the block:\n" + hash +
-                "\nBlock was generating for " + seconds;
+                "\nBlock was generating for " + milliseconds +
+                "\n" + modificationOfN;
     }
 
 }
