@@ -1,23 +1,42 @@
 package blockchain;
 
-import java.io.IOException;
-import java.util.*;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) {
 
         String filename = "Blockchain.data";
-        // Scanner scanner = new Scanner(System.in);
-        // System.out.println("Enter how many zeros the hash must start with: ");
-        // int numberOfZeros = scanner.nextInt();
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
 
-        try {
-            Blockchain blockchain = new Blockchain(5, filename);
-            for (int i = blockchain.getSize() - 5; i < blockchain.getSize(); i++) {
-                System.out.println(blockchain.getBlockAt(i) + "\n");
-            }
-        } catch (RuntimeException | IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        Blockchain blockchain = new Blockchain(filename);
+        MessageSender[] messageSenders = new MessageSender[4];
+
+        for (int i = 0; i < 4; i++) {
+            messageSenders[i] = new MessageSender(MessageSender.getRandomName(), blockchain);
+            executor.submit(messageSenders[i]);
         }
+
+        blockchain.generateBlocks(5, filename, executor);
+
+        for (int i = blockchain.getSize() - 5; i < blockchain.getSize(); i++) {
+            System.out.println(blockchain.getBlockAt(i) + "\n");
+        }
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while (blockchain.getSize() < 5);
+
+        for (MessageSender messageSender : messageSenders) {
+            messageSender.interrupt();
+        }
+
+        executor.shutdown();
     }
 }

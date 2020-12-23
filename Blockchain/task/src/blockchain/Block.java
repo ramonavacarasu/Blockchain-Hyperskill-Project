@@ -1,8 +1,7 @@
 package blockchain;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 
 public class Block implements Serializable {
 
@@ -19,23 +18,29 @@ public class Block implements Serializable {
     private String previousHash;
     private Integer magicNumber;
     private String hash;
+    private String message;
     private long milliseconds;
     private String modificationOfN;
 
+
     public Block(String previousHash) {
         this.id = idCounter++;
-        this.timestamp = new Date().getTime();
+        //this.timestamp = new Date().getTime();
+        this.timestamp = System.currentTimeMillis();
         this.previousHash = previousHash;
         this.magicNumber = random.nextInt(10000000);
         this.hash = StringUtil.applySha256(id.toString() + timestamp.toString()
                 + previousHash + magicNumber.toString());
-
         do {
             this.magicNumber = random.nextInt(10000000);
             this.hash = StringUtil.applySha256(id.toString() + timestamp.toString()
                     + previousHash + magicNumber.toString());
         } while (!hash.startsWith(getHashPrefix(numberOfZeros)));
-        this.milliseconds = new Date().getTime() - timestamp;
+
+        this.message = "no message\n";
+
+        this.milliseconds = System.currentTimeMillis() - timestamp;
+
         if (milliseconds < 15000) {
             numberOfZeros++;
             modificationOfN = "N was increased to " + numberOfZeros;
@@ -44,7 +49,6 @@ public class Block implements Serializable {
         } else {
             modificationOfN = "N stays the same";
         }
-
     }
 
     public static void setIdCounter(long idCounter) {
@@ -115,6 +119,18 @@ public class Block implements Serializable {
         this.hash = hash;
     }
 
+
+    public void setMessage(List<Message> messages) {
+        if (messages.size() == 0) {
+            this.message = "no messages\n";
+        } else {
+            this.message = "";
+            for (int i = 0; i < messages.size() - 1; i++) {
+                this.message += messages.get(i).getUser()  + " : " + messages.get(i).getMessage() + "\n";
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "Block:\n" +
@@ -124,7 +140,8 @@ public class Block implements Serializable {
                 "\nMagic number: " + this.magicNumber +
                 "\nHash of the previous block:\n" + previousHash +
                 "\nHash of the block:\n" + hash +
-                "\nBlock was generating for " + milliseconds +
+                "\nBlock data:\n" + message +
+                "Block was generating for " + milliseconds / 1000 + " seconds" +
                 "\n" + modificationOfN;
     }
 
